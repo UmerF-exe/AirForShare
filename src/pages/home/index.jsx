@@ -1,5 +1,8 @@
 import LOGO from "../../assets/logo.svg";
 import "./css/style.scss";
+import { MdOutlineTextFields } from "react-icons/md";
+import { FaRegFileAlt } from "react-icons/fa";
+
 const HomePage = () => {
     return (
         <div className="container">
@@ -7,11 +10,26 @@ const HomePage = () => {
                 <div className="logo">
                     <img src={LOGO} alt="Logo" />
                 </div>
-                <div>
+                <div className="menu-bar">
                     <ul>
-                        <li></li>
+                        <li>How it works</li>
+                        <li>Download</li>
+                        <li>Upgrade</li>
+                        <li>Feedback</li>
+                        <li className="menu-btn">Login / Register</li>
                     </ul>
                 </div>
+            </div>
+            <div className="main-card">
+                <div className="card-sidebar">
+                    <div className="active">
+                        <MdOutlineTextFields size={40} />
+                    </div>
+                    <div>
+                        <FaRegFileAlt size={35} />
+                    </div>
+                </div>
+                <div className="card-container"></div>
             </div>
         </div>
     )
