@@ -1,0 +1,13 @@
+$white: #fff;
+
+.logo{
+    width: 100%;
+    color: $white;
+    img{
+        width: 100px;
+        cursor: pointer;
+        &:active{
+            opacity: 0.2;
+        }
+    }
+}
