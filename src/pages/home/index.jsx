@@ -1,17 +1,20 @@
-import LOGO from "../../assets/logo.svg";
-import TEXT_GREY from "../../assets/text-grey.svg";
-import TEXT_COLOR from "../../assets/text-color.svg";
-import FILES_GREY from "../../assets/files-grey.svg";
-import FILES_COLOR from "../../assets/files-color.svg";
+import { LOGO, TEXT_GREY, TEXT_COLOR, FILES_GREY, FILES_COLOR } from "../../assets/Imports.jsx"
 
-import TextArea from "../../components/TextArea.jsx";
 import "./css/style.scss";
 import { use, useState } from "react";
-import ThemeButton from "../../components/Button.jsx";
+import { FaDownload } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
+import { ThemeButton, TextArea, DropZone, FilesList } from "../../components/Imports.jsx";
 
 const HomePage = () => {
     const [type, setType] = useState("text");
     const [textValue, setTextValue] = useState("");
+    const [files, setFiles] = useState([]);
+
+    const onDrop = (acceptedFiles) => {
+        console.log("acceptedFiles", acceptedFiles);
+        setFiles([...files, ...acceptedFiles]);
+    }
     return (
         <div className="container">
             <div className="header-bar">
@@ -39,19 +42,41 @@ const HomePage = () => {
                 </div>
                 <div className="card-container">
                     {type === "text" ?
-                    <div className="text-section">
-                        <h1>Text</h1>
-                        <div className="resize-section">
-                            <TextArea value={textValue} onChange={(e) => setTextValue(e.target.value)} />
+                        <div className="text-section">
+                            <h1>Text</h1>
+                            <div className="resize-section">
+                                <TextArea value={textValue} onChange={(e) => setTextValue(e.target.value)} />
+                            </div>
+                            <div className="save-btn-section">
+                                <span>Clear</span>
+                                <ThemeButton title={"Save"} disabled={textValue ? false : true} />
+                            </div>
+                        </div> :
+                        <div className="files-section">
+                            <div className="files-header">
+                                <h1>Files</h1>
+                                <div className="files-btn">
+                                    <div  className="download-btn">
+                                        <FaDownload />
+                                        Download All
+                                    </div>
+                                    <div onClick={() => setFiles([])} className="delete-btn">
+                                        <MdDelete />
+                                        Delete All
+                                    </div>
+                                </div>
+                            </div>
+                            {files.length ? <FilesList files={files} onDrop={onDrop}/> :
+                            <DropZone
+                                onDrop={onDrop}
+                                textElement={
+                                    <>
+                                        Drag and drop any files up to 2 files, 5Mbs each or <span> Browse
+                                            Upgrade </span> to get more space
+                                    </>
+                                } />
+                            }
                         </div>
-                        <div className="save-btn-section">
-                            <span>Clear</span>
-                            <ThemeButton title={"Save"} disabled={textValue ? false : true}/>
-                        </div>
-                    </div> :
-                    <div className="file-section">
-                        <h1>Files</h1>
-                    </div>
                     }
                 </div>
             </div>
