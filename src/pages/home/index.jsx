@@ -1,53 +1,126 @@
 import "./css/style.scss";
 import { useEffect, useState } from "react";
-import linkify from "react-linkify";
+import JSZip from 'jszip';
+import { saveAs } from "file-saver";
 import { FaDownload } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { LOGO, TEXT_GREY, TEXT_COLOR, FILES_GREY, FILES_COLOR } from "../../assets/Imports.jsx"
 import { ThemeButton, TextArea, DropZone, FilesList } from "../../components/Imports.jsx";
-import { database, ref, set, onValue, remove } from "../../db/index.jsx";
+import { database, ref, set, onValue, remove, storage, storageRef, uploadBytesResumable, downloadURL } from "../../db/index.jsx";
 
 const HomePage = () => {
     const [type, setType] = useState("text");
     const [textValue, setTextValue] = useState("");
     const [isText, setIsText] = useState(false);
     const [files, setFiles] = useState([]);
+    const [tempFiles, setTempFiles] = useState([]);
 
-    const onDrop = (acceptedFiles) => {
-        console.log("acceptedFiles", acceptedFiles);
-        // setFiles([...files, ...acceptedFiles]);
+    const onDrop = async (acceptedFiles) => {
+        setTempFiles([...tempFiles, ...acceptedFiles]);
+        let filesArr = [];
+        for (var i = 0; i < acceptedFiles.length; i++) {
+            arr.push(uploadFiles(acceptedFiles[i], files.length + i));
+        }
+        const allFiles = await Promise.all(filesArr)
+        setFiles([...files, ...allFiles]);
+        set(ref(database, 'files-sharing'), {
+            files: [...files, allFiles]
+        });
+        setTempFiles([]);
     }
 
+    const uploadFiles = (file, i) => {
+        return new Promise((resolve, reject) => {
+            const fileRef = storageRef(storage, `files/file-${i}`);
+            const uploadTask = uploadBytesResumable(fileRef, file);
+            uploadTask.on('state_changed',
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    console.log('Upload is ' + progress + '% done');
+                    switch (snapshot.state) {
+                        case 'paused':
+                            console.log('Upload is paused');
+                            break;
+                        case 'running':
+                            console.log('Upload is running');
+                            break;
+                    }
+                },
+                (error) => {
+                    reject(error)
+                },
+                () => {
+                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                        resolve({ url: downloadURL, type: file.type, name: file.name });
+                    });
+                }
+            );
+        })
+    }
     const saveChanges = () => {
         console.log("Saving changes to the database...");
-        set(ref(database, 'sharing'), {
+        set(ref(database, 'text-sharing'), {
             text: textValue,
-            // files: files
         });
     }
 
     const clearText = async () => {
-        await remove(ref(database, 'sharing'));
+        await remove(ref(database, 'text-sharing'));
         setTextValue("");
         setIsText(false);
     }
+
+    const deleteAllFiles = async () => {
+        await remove(ref(database, 'files-sharing'));
+        setFiles([]);
+    }
+
+    const downloadAll = () => {
+        let filename = "AllFiles";
+        const zip = new JSZip()
+        const folder = zip.folder('project')
+        files.forEach((file) => {
+            const blobPromise = fetch(file.url)
+                .then(function (response) {
+                    if (response.status === 200 || response.status === 0) {
+                        return Promise.resolve(response.blob());
+                    } else {
+                        return Promise.reject(new Error(response.statusText));
+                    }
+                })
+            const name = file.name;
+            folder.file(name, blobPromise)
+        })
+
+        zip.generateAsync({ type: "blob" })
+            .then(blob => saveAs(blob, filename))
+            .catch(e => console.log(e));
+    }
+
     useEffect(() => {
-        const starCountRef = ref(database, 'sharing');
-        onValue(starCountRef, (snapshot) => {
+        const textRef = ref(database, 'text-sharing');
+        onValue(textRef, (snapshot) => {
             const data = snapshot.val();
             setTextValue(data.text);
             if (data.text) {
                 setIsText(true);
             }
-            // setFiles(data.files);
         });
 
+        const filesRef = ref(database, 'files-sharing');
+        onValue(filesRef, (snapshot) => {
+            const data = snapshot.val();
+            setTextValue(data.files);
+            if (data.text) {
+                setIsText(true);
+            }
+        })
     }, [])
 
     var expression = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
     var regex = new RegExp(expression);
-
     const links = textValue.match(regex) || [];
+
     return (
         <div className="container">
             <div className="header-bar">
@@ -94,25 +167,18 @@ const HomePage = () => {
                             <div className="files-header">
                                 <h1>Files</h1>
                                 <div className="files-btn">
-                                    <div className="download-btn">
+                                    <div onClick={downloadAll} className="download-btn">
                                         <FaDownload />
                                         Download All
                                     </div>
-                                    <div onClick={() => setFiles([])} className="delete-btn">
+                                    <div onClick={deleteAllFiles} className="delete-btn">
                                         <MdDelete />
                                         Delete All
                                     </div>
                                 </div>
                             </div>
-                            {files.length ? <FilesList files={files} onDrop={onDrop} /> :
-                                <DropZone
-                                    onDrop={onDrop}
-                                    textElement={
-                                        <>
-                                            Drag and drop any files up to 2 files, 5Mbs each or <span> Browse
-                                                Upgrade </span> to get more space
-                                        </>
-                                    } />
+                            {tempFiles.length || files.length ? <FilesList tempFiles={tempFiles} files={files} onDrop={onDrop} /> :
+                                <DropZone onDrop={onDrop} textElement={<> Drag and drop any files up to 2 files, 5Mbs each or <span> Browse Upgrade </span> to get more space</>} />
                             }
                         </div>
                     }

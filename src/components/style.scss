@@ -108,3 +108,12 @@ $primary-dark-color: #745dff;
     font-size: 12px;
     text-align: center;
 }
+.temp-file{
+    filter: brightness(50%);
+    position: relative;
+    .upload-loader{
+        width: 30px;
+        height: 30px;
+        position: absolute;
+    }
+}
