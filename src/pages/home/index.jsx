@@ -4,11 +4,14 @@ import JSZip from 'jszip';
 import { saveAs } from "file-saver";
 import { FaDownload } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
+import { MdDarkMode, MdLightMode } from "react-icons/md";
 import { LOGO, TEXT_GREY, TEXT_COLOR, FILES_GREY, FILES_COLOR } from "../../assets/Imports.jsx"
 import { ThemeButton, TextArea, DropZone, FilesList } from "../../components/Imports.jsx";
-import { database, ref, set, onValue, remove, storage, storageRef, uploadBytesResumable, downloadURL } from "../../db/index.jsx";
+import { database, ref, set, onValue, remove, storage, storageRef, uploadBytesResumable, getDownloadURL } from "../../db/index.jsx";
+import { useTheme } from "../../context/ThemeContext.jsx";
 
 const HomePage = () => {
+    const { isDark, toggleTheme } = useTheme();
     const [type, setType] = useState("text");
     const [textValue, setTextValue] = useState("");
     const [isText, setIsText] = useState(false);
@@ -19,12 +22,12 @@ const HomePage = () => {
         setTempFiles([...tempFiles, ...acceptedFiles]);
         let filesArr = [];
         for (var i = 0; i < acceptedFiles.length; i++) {
-            arr.push(uploadFiles(acceptedFiles[i], files.length + i));
+            filesArr.push(uploadFiles(acceptedFiles[i], files.length + i));
         }
         const allFiles = await Promise.all(filesArr)
         setFiles([...files, ...allFiles]);
         set(ref(database, 'files-sharing'), {
-            files: [...files, allFiles]
+            files: [...files, ...allFiles]
         });
         setTempFiles([]);
     }
@@ -37,14 +40,6 @@ const HomePage = () => {
                 (snapshot) => {
                     const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                     console.log('Upload is ' + progress + '% done');
-                    switch (snapshot.state) {
-                        case 'paused':
-                            console.log('Upload is paused');
-                            break;
-                        case 'running':
-                            console.log('Upload is running');
-                            break;
-                    }
                 },
                 (error) => {
                     reject(error)
@@ -57,6 +52,7 @@ const HomePage = () => {
             );
         })
     }
+
     const saveChanges = () => {
         console.log("Saving changes to the database...");
         set(ref(database, 'text-sharing'), {
@@ -76,7 +72,7 @@ const HomePage = () => {
     }
 
     const downloadAll = () => {
-        let filename = "AllFiles";
+        let filename = "AllFiles.zip";
         const zip = new JSZip()
         const folder = zip.folder('project')
         files.forEach((file) => {
@@ -101,8 +97,8 @@ const HomePage = () => {
         const textRef = ref(database, 'text-sharing');
         onValue(textRef, (snapshot) => {
             const data = snapshot.val();
-            setTextValue(data.text);
-            if (data.text) {
+            if (data?.text) {
+                setTextValue(data.text);
                 setIsText(true);
             }
         });
@@ -110,9 +106,8 @@ const HomePage = () => {
         const filesRef = ref(database, 'files-sharing');
         onValue(filesRef, (snapshot) => {
             const data = snapshot.val();
-            setTextValue(data.files);
-            if (data.text) {
-                setIsText(true);
+            if (data?.files) {
+                setFiles(data.files);
             }
         })
     }, [])
@@ -134,6 +129,9 @@ const HomePage = () => {
                         <li>Upgrade</li>
                         <li>Feedback</li>
                         <li className="menu-btn">Login / Register</li>
+                        <li onClick={toggleTheme} style={{ cursor: 'pointer' }}>
+                            {isDark ? <MdLightMode size={20} /> : <MdDarkMode size={20} />}
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -159,7 +157,7 @@ const HomePage = () => {
                                 </div>
                                 <div className="save-btn-section">
                                     <span onClick={clearText}>Clear</span>
-                                    {isText ? <ThemeButton onClick={() => { navigator.clipboard.writeText(textValue) }} title={"Copy"} /> : <ThemeButton onClick={saveChanges} title={"Save"} disabled={textValue ? false : true} />}
+                                    {isText ? <ThemeButton onClick={() => { navigator.clipboard.writeText(textValue) }} title={"Copy"} /> : <ThemeButton onClick={saveChanges} title={"Save"} disabled={!textValue} />}
                                 </div>
                             </div>
                         </div> :

@@ -1,189 +1,333 @@
-$white: #fff;
-$light-color: #4a4a4a;
-$body-bg: #f4f4f4;
-$primary-color: #638eff;
-$primary-dark-color: #745dff;
+// Theme Variables
+:root {
+  --bg-primary: #f4f4f4;
+  --bg-secondary: #ffffff;
+  --bg-sidebar: #f4f4f4;
+  --text-primary: #000000;
+  --text-secondary: #4a4a4a;
+  --border-color: #e0e0e0;
+  --primary-color: #638eff;
+  --primary-dark: #745dff;
+  --shadow: 0px 21px 33px 0px rgba(0, 0, 0, 0.1);
+  --hover-bg: rgba(158, 161, 161, 0.2);
+}
 
+[data-theme="dark"] {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --bg-sidebar: #363636;
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --border-color: #404040;
+  --primary-color: #7b9cff;
+  --primary-dark: #8f7aff;
+  --shadow: 0px 21px 33px 0px rgba(0, 0, 0, 0.3);
+  --hover-bg: rgba(255, 255, 255, 0.1);
+}
 
 body {
-    background-color: $body-bg;
-    font-family: 'Open Sans', sans-serif;
+  background-color: var(--bg-primary);
+  font-family: 'Open Sans', sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .container {
-    width: 60%;
-    margin: 0 auto;
-    margin-top: 50px;
+  width: 60%;
+  margin: 0 auto;
+  margin-top: 50px;
+
+  // Responsive Breakpoints
+  @media (max-width: 1200px) {
+    width: 80%;
+  }
+
+  @media (max-width: 768px) {
+    width: 90%;
+    margin-top: 20px;
+  }
+
+  @media (max-width: 480px) {
+    width: 95%;
+    margin-top: 10px;
+  }
 }
 
 .header-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 15px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    text-align: center;
+  }
 }
 
 .logo {
-    img {
-        width: 100px;
-        cursor: pointer;
-    }
+  img {
+    width: 100px;
+    cursor: pointer;
+    filter: var(--logo-filter, none);
+  }
 }
 
 .menu-bar {
-    ul {
-        display: flex;
-        gap: 20px;
+  ul {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0;
 
-        li {
-            list-style-type: none;
-            font-size: 14px;
-            color: $light-color;
-
-            &:hover {
-                color: $primary-dark-color;
-            }
-        }
-
-        .menu-btn {
-            color: $primary-color;
-            font-weight: 700;
-        }
+    @media (max-width: 480px) {
+      gap: 10px;
     }
+
+    li {
+      list-style-type: none;
+      font-size: 14px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: color 0.3s ease;
+      white-space: nowrap;
+
+      @media (max-width: 480px) {
+        font-size: 12px;
+      }
+
+      &:hover {
+        color: var(--primary-dark);
+      }
+    }
+
+    .menu-btn {
+      color: var(--primary-color);
+      font-weight: 700;
+    }
+  }
 }
 
 .main-card {
-    display: flex;
-    background-color: $white;
+  display: flex;
+  background-color: var(--bg-secondary);
+  width: 100%;
+  min-height: 400px;
+  margin-top: 30px;
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  overflow: hidden;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    margin-top: 20px;
+  }
+
+  .card-sidebar {
+    background-color: var(--bg-sidebar);
+    padding: 15px;
+    transition: background-color 0.3s ease;
+
+    @media (max-width: 768px) {
+      display: flex;
+      padding: 10px;
+      justify-content: right;
+      gap: 20px;
+    }
+
+    div {
+      margin-bottom: 20px;
+      cursor: pointer;
+      padding: 10px;
+      border-radius: 8px;
+      transition: background-color 0.3s ease;
+
+      @media (max-width: 768px) {
+        margin-bottom: 0;
+      }
+
+      &:hover {
+        background-color: var(--hover-bg);
+      }
+
+      img {
+        width: 25px;
+        filter: var(--icon-filter, none);
+      }
+    }
+  }
+
+  .card-container {
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    padding-top: 0;
     width: 100%;
-    min-height: 400px;
-    margin-top: 30px;
-    box-shadow: 0px 21px 33px 0px rgba(0, 0, 0, 0.1);
+    min-height: 350px;
+    transition: border-color 0.3s ease;
 
-    .card-sidebar {
-        background-color: #f4f4f4;
-        padding: 15px;
-
-        div {
-            margin-bottom: 20px;
-            cursor: pointer;
-            padding: 10px;
-
-            img {
-                width: 25px;
-            }
-        }
+    @media (max-width: 768px) {
+      padding: 15px;
     }
 
-    .card-container {
-        border: 1px solid #fff;
-        padding: 0px 20px;
-        width: 100%;
+    h1 {
+      font-size: 44px;
+      font-weight: 700;
+      line-height: .85;
+      letter-spacing: .6px;
+      color: var(--text-primary);
+      margin-bottom: 28px;
 
-        div {
-            h1 {
-                font-size: 44px;
-                font-weight: 700;
-                line-height: .85;
-                letter-spacing: .6px;
-                color: #000;
-                margin-bottom: 28px;
-            }
-        }
+      @media (max-width: 768px) {
+        font-size: 36px;
+        margin-bottom: 20px;
+      }
 
-        .text-section {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-
-            .resize-section {
-                width: 100%;
-                flex: 1;
-            }
-
-            .text-footer {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-
-                .links {
-                    flex: 1;
-                }
-
-                div {
-                    margin-bottom: 5px;
-
-                    span {
-                        a {
-                            color: $primary-color;
-                        }
-                    }
-                }
-
-                .save-btn-section {
-                    span {
-                        font-size: 12px;
-                        margin-right: 50px;
-                        cursor: pointer;
-                        font-weight: 500;
-                    }
-
-                    padding: 20px 0px;
-                    text-align: right;
-                }
-            }
-        }
-
-        .files-section {
-            height: 100%;
-
-            .files-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-
-                .files-btn {
-                    display: flex;
-                    align-items: center;
-                    gap: 30px;
-
-                    div {
-                        display: flex;
-                        align-items: center;
-                        font-size: 12px;
-                        cursor: pointer;
-
-                        &:active {
-                            opacity: 0.5;
-                        }
-
-                        &:hover {
-                            text-decoration: underline;
-                        }
-                    }
-
-                    .download-btn {
-                        color: $primary-color;
-
-                        svg {
-                            font-size: 18px;
-                            margin-right: 6px;
-                            margin-bottom: 2px;
-                        }
-                    }
-
-                    .delete-btn {
-                        color: #963a45;
-
-                        svg {
-                            font-size: 22px;
-                            margin-right: 6px;
-                            margin-bottom: 2px;
-                        }
-                    }
-                }
-            }
-        }
+      @media (max-width: 480px) {
+        font-size: 28px;
+      }
     }
+  }
+}
+
+.text-section {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  .resize-section {
+    width: 100%;
+    flex: 1;
+  }
+
+  .text-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .links {
+      flex: 1;
+      
+      div {
+        margin-bottom: 5px;
+        
+        a {
+          color: var(--primary-color);
+          word-break: break-all;
+          font-size: 14px;
+          
+          @media (max-width: 480px) {
+            font-size: 12px;
+          }
+        }
+      }
+    }
+
+    .save-btn-section {
+      padding: 20px 0;
+      text-align: right;
+      white-space: nowrap;
+
+      @media (max-width: 768px) {
+        text-align: center;
+        padding: 10px 0;
+      }
+
+      span {
+        font-size: 12px;
+        margin-right: 50px;
+        cursor: pointer;
+        font-weight: 500;
+        color: var(--text-secondary);
+        transition: color 0.3s ease;
+
+        @media (max-width: 768px) {
+          margin-right: 30px;
+        }
+
+        @media (max-width: 480px) {
+          margin-right: 20px;
+          font-size: 11px;
+        }
+
+        &:hover {
+          color: var(--primary-color);
+        }
+      }
+    }
+  }
+}
+
+.files-section {
+  height: 100%;
+
+  .files-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .files-btn {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      flex-wrap: wrap;
+
+      @media (max-width: 480px) {
+        gap: 15px;
+      }
+
+      div {
+        display: flex;
+        align-items: center;
+        font-size: 12px;
+        cursor: pointer;
+        transition: opacity 0.3s ease;
+        white-space: nowrap;
+
+        @media (max-width: 480px) {
+          font-size: 11px;
+        }
+
+        &:active {
+          opacity: 0.5;
+        }
+
+        &:hover {
+          text-decoration: underline;
+        }
+
+        svg {
+          font-size: 18px;
+          margin-right: 6px;
+          margin-bottom: 2px;
+        }
+      }
+
+      .download-btn {
+        color: var(--primary-color);
+      }
+
+      .delete-btn {
+        color: #963a45;
+      }
+    }
+  }
 }

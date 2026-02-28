@@ -1,10 +1,12 @@
 import AppRouter from './config/Routes.jsx';
-import './App.css'
+import { ThemeProvider } from './context/ThemeContext.jsx';
 
 function App() {
   return (
-    <AppRouter />
+    <ThemeProvider>
+      <AppRouter />
+    </ThemeProvider>
   );
 }
 
-export default App
+export default App;

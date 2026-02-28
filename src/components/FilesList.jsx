@@ -3,7 +3,7 @@ import { GoPlus } from "react-icons/go";
 import { FaHtml5, FaCss3Alt, FaFilePdf } from "react-icons/fa";
 import { IoLogoJavascript } from "react-icons/io";
 import DropZone from "./DropZone.jsx";
-import LOADER from "../assets/Imports.jsx"
+import { LOADER } from "../assets/Imports.jsx"
 
 const FilesList = ({ tempFiles, files, onDrop }) => {
     return (
